@@ -1,0 +1,11 @@
+# This is a simple HTTP request to get 
+# FHIR server metadata to verify operation.
+
+
+@hostname = {{$dotenv HTTP_HOSTNAME}}
+@client_id = {{$dotenv HTTP_CLIENT_ID}}
+@client_secret = {{$dotenv HTTP_CLIENT_SECRET}}
+
+GET https://{{ hostname }}/fhir/R4/metadata
+CF-Access-Client-Id: {{ client_id }}
+CF-Access-Client-Secret: {{ client_secret }}

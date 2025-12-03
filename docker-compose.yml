@@ -1,0 +1,33 @@
+
+
+services:
+  fhir-server:
+      image: mp-fhir-server:latest
+      restart: always
+      ports:
+        - '8103:8103'
+      entrypoint: >
+        sh -c "
+        if [ -n '${MEDPLUM_CONFIG_PATH}' ]; then
+          echo 'Config file found, running with custom config'
+          node --require ./packages/server/dist/otel/instrumentation.js packages/server/dist/index.js file:$MEDPLUM_CONFIG_PATH
+        else
+          echo 'No config file found, running with default env settings'
+          node --require ./packages/server/dist/otel/instrumentation.js packages/server/dist/index.js env
+        fi
+        "
+      env_file:
+        - .env
+
+      healthcheck:
+        test:
+          [
+            'CMD',
+            'node',
+            '-e',
+            'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
+          ]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
